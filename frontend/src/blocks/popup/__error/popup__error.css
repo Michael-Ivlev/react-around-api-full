@@ -1,0 +1,14 @@
+.popup__error {
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 15px;
+    color: #ff0000;
+    opacity: 0;
+    transition: 0.3ms;
+    display:flex;
+    width: 358px;
+    word-break:break-all;
+  }
+  

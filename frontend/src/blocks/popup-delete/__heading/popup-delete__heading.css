@@ -1,0 +1,16 @@
+.popup-delete__heading {
+  padding: 0;
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-style: normal;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 29px;
+}
+
+@media screen and (max-width: 580px) {
+  .popup-delete__heading {
+    font-size: 18px;
+    line-height: 22px;
+  }
+}

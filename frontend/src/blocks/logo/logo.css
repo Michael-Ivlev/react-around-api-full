@@ -1,0 +1,12 @@
+.logo {
+  padding-top: 45px;
+  padding-bottom: 45px;
+}
+
+@media screen and (max-width: 580px) {
+  .logo {
+    padding-top: 32px;
+    padding-bottom: 32px;
+    width: 126px;
+  }
+}

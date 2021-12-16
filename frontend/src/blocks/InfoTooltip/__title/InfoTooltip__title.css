@@ -1,0 +1,11 @@
+.InfoTooltip__title{
+    font-family: Inter;
+font-style: normal;
+font-weight: 900;
+font-size: 24px;
+line-height: 29px;
+text-align: center;
+max-width: 358px;
+color: #000000;
+margin-top: 32px;
+}

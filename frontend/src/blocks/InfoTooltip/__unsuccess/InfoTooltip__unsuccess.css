@@ -1,0 +1,10 @@
+.InfoTooltip__unsuccess{
+    background: none;
+  background-image: url(../../../images/UnSuccess.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  height: 120px;
+  width: 120px;
+  margin-top: 24px;
+}

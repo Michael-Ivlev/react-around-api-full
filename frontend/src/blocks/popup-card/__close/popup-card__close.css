@@ -1,0 +1,22 @@
+.popup-card__close {
+  background: none;
+  background-image: url(../../../images/Close-Icon.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+  opacity: 1;
+  transition: 0.3s;
+  margin-left: 470px;
+}
+
+@media screen and (max-width: 580px) {
+  .popup-card__close {
+    height: 26px;
+    width: 26px;
+    margin-left: 260px;
+    margin-bottom: 14px;
+  }
+}

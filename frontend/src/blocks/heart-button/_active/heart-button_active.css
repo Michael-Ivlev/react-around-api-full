@@ -1,0 +1,5 @@
+.heart-button_active {
+    background-image: url(../../../images/elements/heart_active.svg);
+    opacity: 1;
+    color: red;
+}

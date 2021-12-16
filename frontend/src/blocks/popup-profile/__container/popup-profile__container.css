@@ -1,0 +1,17 @@
+.popup-profile__container {
+  display: flex;
+  flex-direction: column;
+  padding: 36px;
+  background: #ffffff;
+  box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  min-width: 328px;
+  position: relative;
+}
+
+@media screen and (max-width: 580px) {
+  .popup-profile__container {
+    padding: 22px;
+    min-width: 240px;
+  }
+}
