@@ -24,6 +24,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [currenEmail, setcurrenEmail] = useState("");
   const history = useHistory();
+  // const [token, setToken] = useState(localStorage.getItem("jwt"));
   const token = localStorage.getItem("jwt");
 
   React.useEffect(() => {
@@ -34,25 +35,25 @@ function App() {
           if (res) {
             setLoggedIn(true);
             history.push("/");
-            setcurrenEmail(res.data.email);
+            setcurrenEmail(res.email);
           }
         })
         .catch((err) => console.log(err));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [token, history]);
 
   React.useEffect(() => {
     api
-      .getAllInfo()
+      .getAllInfo(token)
       .then(([userInfo, cardArray]) => {
-        setCurrentUser(userInfo.data);
+        setCurrentUser(userInfo);
         setCards(cardArray);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [token]);
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -66,7 +67,7 @@ function App() {
     const isLiked = card.likes.some((item) => item._id === currentUser._id);
     // Send a request to the API and getting the updated card data
     api
-      .changeLikeCardStatus(card._id, !isLiked)
+      .changeLikeCardStatus(card._id, !isLiked, token)
       .then((newCard) => {
         setCards((state) =>
           state.map((item) => (item._id === card._id ? newCard : item))
@@ -80,7 +81,7 @@ function App() {
     const isOwn = card.owner._id === currentUser._id;
     if (isOwn) {
       api
-        .removeCard(card._id)
+        .removeCard(card._id, token)
         .then(() => {
           const newCardList = cards.filter((item) => !(item._id === card._id));
           setCards(newCardList);
@@ -91,7 +92,7 @@ function App() {
 
   function handleAddPlaceSubmit(props) {
     api
-      .addNewCard(props.name, props.link)
+      .addNewCard(props.name, props.link, token)
       .then((newCard) => {
         console.log(newCard);
         setCards([newCard, ...cards]);
@@ -160,7 +161,7 @@ function App() {
 
   function handleUpdateUser(props) {
     api
-      .setUserInfo(props.name, props.about)
+      .setUserInfo(props.name, props.about, token)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -170,7 +171,7 @@ function App() {
 
   function handleAvatarUpdate(props) {
     api
-      .setAvatarImage(props.avatar)
+      .setAvatarImage(props.avatar, token)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();

@@ -14,44 +14,62 @@ class Api extends React.Component {
     return res.json();
   }
 
-  getInitialCards() {
+  getInitialCards(token) {
     return fetch(`${this.baseUrl}/cards`, {
-      headers: this.headers,
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     }).then((res) => this._getResponseData(res));
   }
 
-  getUserInfo() {
+  getUserInfo(token) {
     return fetch(`${this.baseUrl}/users/me`, {
-      headers: this.headers,
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     }).then((res) => this._getResponseData(res));
   }
 
-  changeLikeCardStatus(cardId, boolean) {
+  changeLikeCardStatus(cardId, boolean, token) {
     if (boolean) {
       return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
         method: "PUT",
-        headers: this.headers,
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }).then((res) => this._getResponseData(res));
     }
     if (!boolean) {
       return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
         method: "DELETE",
-        headers: this.headers,
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }).then((res) => this._getResponseData(res));
     }
   }
 
-  removeCard(cardId) {
+  removeCard(cardId, token) {
     return fetch(`${this.baseUrl}/cards/${cardId}`, {
       method: "DELETE",
-      headers: this.headers,
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     }).then((res) => this._getResponseData(res));
   }
 
-  setUserInfo(userName, userAbout) {
+  setUserInfo(userName, userAbout, token) {
     return fetch(`${this.baseUrl}/users/me`, {
       method: "PATCH",
-      headers: this.headers,
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name: userName,
         about: userAbout,
@@ -59,21 +77,27 @@ class Api extends React.Component {
     }).then((res) => this._getResponseData(res));
   }
 
-  setAvatarImage(imageUrl) {
+  setAvatarImage(imageUrl, token) {
     return fetch(`${this.baseUrl}/users/me/avatar`, {
       method: "PATCH",
-      headers: this.headers,
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         avatar: `${imageUrl}`,
       }),
     }).then((res) => this._getResponseData(res));
   }
 
-  addNewCard(imageName, imageLink) {
+  addNewCard(imageName, imageLink, token) {
     console.log(imageName);
     return fetch(`${this.baseUrl}/cards`, {
       method: "POST",
-      headers: this.headers,
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name: imageName,
         link: imageLink,
@@ -81,18 +105,13 @@ class Api extends React.Component {
     }).then((res) => this._getResponseData(res));
   }
 
-  getAllInfo() {
-    return Promise.all([this.getUserInfo(), this.getInitialCards()]);
+  getAllInfo(token) {
+    return Promise.all([this.getUserInfo(token), this.getInitialCards(token)]);
   }
 }
 
 const api = new Api({
   baseUrl: "http://localhost:3000",
-  headers: {
-    authorization:
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWI5ZGM4MTdlMDg2NzNhYjg0ODRjMTciLCJpYXQiOjE2Mzk2NjM0MjIsImV4cCI6MTY0MDI2ODIyMn0.9SQ1ksIPovBuWnGwpggq3dd2nJUdR8mfEUA6FJ-okTQ",
-    "Content-Type": "application/json",
-  },
 });
 
 // const api = new Api({
