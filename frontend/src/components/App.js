@@ -44,22 +44,16 @@ function App() {
 
   React.useEffect(() => {
     api
-      .getInitialCards()
-      .then((res) => {
-        setCards(res);
+      .getAllInfo()
+      .then(([userInfo, cardArray]) => {
+        setCurrentUser(userInfo.data);
+        setCards(cardArray);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
-  React.useEffect(() => {
-    api
-      .getUserInfo()
-      .then((res) => {
-        setCurrentUser(res.data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-  console.log(currentUser);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -99,6 +93,7 @@ function App() {
     api
       .addNewCard(props.name, props.link)
       .then((newCard) => {
+        console.log(newCard);
         setCards([newCard, ...cards]);
         closeAllPopups();
       })

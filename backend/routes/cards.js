@@ -1,23 +1,71 @@
-const cardsRouter = require("express").Router();
+const cardsRouter = require('express').Router();
+const { celebrate, Joi, Segments } = require('celebrate');
+const validator = require('validator');
 const {
   getCards,
   removeCardById,
   addCard,
   likeCard,
   dislikeCard,
-} = require("../controllers/cards");
-const auth = require("../middlewares/auth");
-// const permissions = require("../middlewares/permissions");
-const { permissionCard } = require("../middlewares/permissions");
+} = require('../controllers/cards');
+const auth = require('../middlewares/auth');
+const { permissionCard } = require('../middlewares/permissions');
 
-cardsRouter.get("/cards", getCards);
+// custom Url celebrate validator
+const validateURL = (value, helpers) => {
+  if (validator.isURL(value)) {
+    return value;
+  }
+  return helpers.error('string.uri');
+};
 
-cardsRouter.delete("/cards/:cardId", auth, permissionCard, removeCardById);
+cardsRouter.get('/cards', auth, getCards);
 
-cardsRouter.post("/cards", auth, addCard);
+cardsRouter.delete(
+  '/cards/:cardId',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      cardId: Joi.string().alphanum().required(),
+    }),
+  }),
+  auth,
+  permissionCard,
+  removeCardById,
+);
 
-cardsRouter.put("/cards/:cardId/likes", auth, likeCard);
+cardsRouter.post(
+  '/cards',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      name: Joi.string().alphanum().min(3).max(30)
+        .required(),
+      link: Joi.string().required().custom(validateURL),
+    }),
+  }),
+  auth,
+  addCard,
+);
 
-cardsRouter.delete("/cards/:cardId/likes", auth, dislikeCard);
+cardsRouter.put(
+  '/cards/:cardId/likes',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      cardId: Joi.string().alphanum().required(),
+    }),
+  }),
+  auth,
+  likeCard,
+);
+
+cardsRouter.delete(
+  '/cards/:cardId/likes',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      cardId: Joi.string().alphanum().required(),
+    }),
+  }),
+  auth,
+  dislikeCard,
+);
 
 module.exports = cardsRouter;

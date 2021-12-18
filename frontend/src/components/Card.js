@@ -21,6 +21,7 @@ export function Card(props) {
   function handleDeleteClick() {
     props.onCardDelete(props.card);
   }
+
   // Check if the card was liked by the current user
   const isLiked = props.card.likes.some((i) => i._id === currentUser._id);
 

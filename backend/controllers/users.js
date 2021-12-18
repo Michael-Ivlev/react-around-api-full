@@ -1,79 +1,71 @@
-const User = require("../models/user");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const NotFoundError = require('../errors/not_found');
+const InvalidData = require('../errors/invalid_data');
+const AuthError = require('../errors/auth_error');
+const EmailAlreadyExists = require('../errors/email_already_exists');
 
-let ERROR_CODE = 500;
-
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .orFail()
     .then((users) => {
       res.send(users);
     })
     .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        ERROR_CODE = 404;
-        return res
-          .status(ERROR_CODE)
-          .send({ message: `no users in database or no such document${err}` });
+      if (err.name === 'DocumentNotFoundError') {
+        throw new AuthError(`no users in database or no such document${err}`);
       }
-      return res
-        .status(ERROR_CODE)
-        .send({ message: `${err}An error has occurred` });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.getUsersById = (req, res) => {
+module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.id)
     .orFail()
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
-        ERROR_CODE = 400;
-        return res.status(404).send({ error: "No user found with that id" });
+      if (err.name === 'CastError') {
+        throw new NotFoundError('No user found with that id');
       }
-      if (err.name === "DocumentNotFoundError") {
-        ERROR_CODE = 404;
-        return res
-          .status(ERROR_CODE)
-          .send({ message: "There is no user with the requested ID" });
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError('There is no user with the requested ID');
       }
-      return res
-        .status(ERROR_CODE)
-        .send({ message: `${err}An error has occurred` });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   bcrypt
     .hash(password, 10)
     .then((hash) => {
       User.create({
-        email: email,
+        email,
         password: hash,
-        name: name,
-        about: about,
-        avatar: avatar,
+        name,
+        about,
+        avatar,
       })
-        .then((user) => res.send({ data: user }))
+        .then((user) => res.send(user))
         .catch((err) => {
-          if (err.name === "ValidationError" || err.name === "SyntaxError") {
-            ERROR_CODE = 400;
-            return res.status(ERROR_CODE).send({
-              message:
-                "invalid data passed to the methods. check your url and that you pass name and about",
-            });
+          if (err.message.includes('E11000 duplicate key error collection')) {
+            throw new EmailAlreadyExists('User with this Email already exist');
           }
-          return res
-            .status(ERROR_CODE)
-            .send({ message: `${err}An error has occurred` });
-        });
+          if (err.name === 'ValidationError' || err.name === 'SyntaxError') {
+            throw new InvalidData(
+              'invalid data passed to the methods. check your url and that you pass name and about',
+            );
+          }
+        })
+        .catch(next);
     })
-    .catch((err) => res.status(400).send(err));
+    .catch(next);
 };
 
-module.exports.updateUserInfo = (req, res) => {
+module.exports.updateUserInfo = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -84,34 +76,27 @@ module.exports.updateUserInfo = (req, res) => {
     {
       new: true, // the then handler receives the updated entry as input
       runValidators: true, // the data will be validated before the update
-    }
+    },
   )
     .orFail()
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        ERROR_CODE = 400;
-        return res.status(ERROR_CODE).send(err);
+      if (err.name === 'ValidationError') {
+        throw new InvalidData('invalid data passed to the methods');
       }
-      if (err.name === "DocumentNotFoundError") {
-        ERROR_CODE = 404;
-        return res.status(ERROR_CODE).send({
-          message: `no users in database or no such document ${err.name}`,
-        });
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError(
+          `no users in database or no such document ${err.name}`,
+        );
       }
-      return res
-        .status(ERROR_CODE)
-        .send({ message: `${err}An error has occurred` });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   if (!avatar) {
-    ERROR_CODE = 400;
-    return res
-      .status(ERROR_CODE)
-      .send("invalid data passed to the method no avatar");
+    throw new InvalidData('invalid data passed to the method no avatar');
   }
   return User.findByIdAndUpdate(
     req.user._id,
@@ -121,68 +106,52 @@ module.exports.updateUserAvatar = (req, res) => {
     {
       new: true, // the then handler receives the updated entry as input
       runValidators: true, // the data will be validated before the update
-    }
+    },
   )
     .orFail()
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        ERROR_CODE = 400;
-        return res.status(ERROR_CODE).send(err);
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError(
+          `no users in database or no such document ${err.name}`,
+        );
       }
-      if (err.name === "DocumentNotFoundError") {
-        ERROR_CODE = 404;
-        return res.status(ERROR_CODE).send({
-          message: `no users in database or no such document ${err.name}`,
-        });
-      }
-      return res
-        .status(ERROR_CODE)
-        .send({ message: `${err}An error has occurred` });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
-    .select("+password")
+    .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error("Incorrect password or email"));
+        throw new AuthError('Incorrect password or email');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new Error("bad cred"));
+          throw new AuthError('Incorrect password or email');
         }
-        console.log(user._id);
-        const token = jwt.sign({ _id: user._id }, "not-so-secret-string", {
-          expiresIn: "7 days",
+        const token = jwt.sign({ _id: user._id }, 'not-so-secret-string', {
+          expiresIn: '7 days',
         });
         res.send({ token });
       });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-module.exports.currentUser = (req, res) => {
+module.exports.currentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === "CastError") {
-        ERROR_CODE = 400;
-        return res.status(404).send({ error: "No user found with that id" });
+      if (err.name === 'CastError') {
+        throw new InvalidData('No user found with that id');
       }
-      if (err.name === "DocumentNotFoundError") {
-        ERROR_CODE = 404;
-        return res
-          .status(ERROR_CODE)
-          .send({ message: "There is no user with the requested ID" });
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError('There is no user with the requested ID');
       }
-      return res
-        .status(ERROR_CODE)
-        .send({ message: `${err}An error has occurred` });
-    });
+    })
+    .catch(next);
 };

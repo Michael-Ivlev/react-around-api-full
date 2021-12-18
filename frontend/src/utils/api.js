@@ -6,6 +6,7 @@ class Api extends React.Component {
     this.baseUrl = props.baseUrl;
     this.headers = props.headers;
   }
+
   _getResponseData(res) {
     if (!res.ok) {
       return Promise.reject(`Error: ${res.status}`);
@@ -27,12 +28,13 @@ class Api extends React.Component {
 
   changeLikeCardStatus(cardId, boolean) {
     if (boolean) {
-      return fetch(`${this.baseUrl}/cards/likes/${cardId}`, {
+      return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
         method: "PUT",
         headers: this.headers,
       }).then((res) => this._getResponseData(res));
-    } else {
-      return fetch(`${this.baseUrl}/cards/likes/${cardId}`, {
+    }
+    if (!boolean) {
+      return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
         method: "DELETE",
         headers: this.headers,
       }).then((res) => this._getResponseData(res));
@@ -68,6 +70,7 @@ class Api extends React.Component {
   }
 
   addNewCard(imageName, imageLink) {
+    console.log(imageName);
     return fetch(`${this.baseUrl}/cards`, {
       method: "POST",
       headers: this.headers,
@@ -77,6 +80,10 @@ class Api extends React.Component {
       }),
     }).then((res) => this._getResponseData(res));
   }
+
+  getAllInfo() {
+    return Promise.all([this.getUserInfo(), this.getInitialCards()]);
+  }
 }
 
 const api = new Api({
@@ -84,6 +91,7 @@ const api = new Api({
   headers: {
     authorization:
       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWI5ZGM4MTdlMDg2NzNhYjg0ODRjMTciLCJpYXQiOjE2Mzk2NjM0MjIsImV4cCI6MTY0MDI2ODIyMn0.9SQ1ksIPovBuWnGwpggq3dd2nJUdR8mfEUA6FJ-okTQ",
+    "Content-Type": "application/json",
   },
 });
 

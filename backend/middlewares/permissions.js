@@ -1,4 +1,7 @@
-const Card = require("../models/card");
+const Card = require('../models/card');
+const NotFoundError = require('../errors/not_found');
+const InvalidData = require('../errors/invalid_data');
+const DeleteNotYourCard = require('../errors/delete_not_your_card');
 
 module.exports.permissionCard = (req, res, next) => {
   Card.findById(req.params.cardId)
@@ -7,26 +10,16 @@ module.exports.permissionCard = (req, res, next) => {
       if (card.owner.toString() === req.user._id) {
         next();
       } else {
-        return res
-          .status(401)
-          .send({ message: "Your not the Onwer of this Card" });
+        throw new DeleteNotYourCard('Your not the Onwer of this Card');
       }
     })
     .catch((err) => {
-      if (err.name === "CastError") {
-        ERROR_CODE = 400;
-        return res
-          .status(ERROR_CODE)
-          .send({ message: "Invalid data passed to the methods" });
+      if (err.name === 'CastError') {
+        throw new InvalidData('Invalid data passed to the methods');
       }
-      if (err.name === "DocumentNotFoundError") {
-        ERROR_CODE = 404;
-        return res
-          .status(ERROR_CODE)
-          .send({ message: "There is no card with the requested ID" });
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError('There is no card with the requested ID');
       }
-      return res
-        .status(ERROR_CODE)
-        .send({ message: `${err}An error has occurred` });
-    });
+    })
+    .catch(next);
 };

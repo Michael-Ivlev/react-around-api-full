@@ -1,40 +1,52 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const helmet = require("helmet");
-const bodyParser = require("body-parser");
-const userRouter = require("./routes/users");
-const cardsRouter = require("./routes/cards");
-var cors = require("cors");
+const express = require('express');
+const mongoose = require('mongoose');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { errors } = require('celebrate');
+const userRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(cors());
-app.options("*", cors());
+app.options('*', cors());
 
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose
-  .connect("mongodb://localhost:27017/aroundb")
-  .then(() => console.log("Database connected!"))
+  .connect('mongodb://localhost:27017/aroundb')
+  .then(() => console.log('Database connected!'))
   .catch((err) => console.log(err));
 
-// need to delete
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: "61b9dc817e08673ab8484c17", // paste the _id of the test user created in the previous step
-//   };
+// request logger
+app.use(requestLogger);
 
-//   next();
-// });
+app.use('/', userRouter);
+app.use('/', cardsRouter);
 
-app.use("/", userRouter);
-app.use("/", cardsRouter);
+app.get('*', (req, res) => {
+  res.status(404).send({ message: 'Requested resource not found' });
+});
 
-app.get("*", (req, res) => {
-  res.status(404).send({ message: "Requested resource not found" });
+// error logger
+app.use(errorLogger);
+
+// celebrate error middleware
+app.use(errors());
+
+// central error middleware
+app.use((err, req, res, next) => {
+  // if an error has no status, display 500
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    // check the status and display a message based on it
+    message: statusCode === 500 ? 'An error occurred on the server' : message,
+  });
 });
 
 app.listen(PORT, () => {

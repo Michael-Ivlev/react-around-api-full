@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-var validator = require("validator");
+const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate(value) {
       if (!validator.isEmail(value)) {
-        throw new Error("Invalid Email");
+        throw new Error('Invalid Email');
       }
     },
   },
@@ -20,30 +20,30 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    default: "Jacques Cousteau",
+    default: 'Jacques Cousteau',
     minlength: 2,
     maxlength: 30,
   },
   about: {
     type: String,
-    default: "Explorer",
+    default: 'Explorer',
     minlength: 2,
     maxlength: 30,
   },
   avatar: {
     type: String,
-    default: "https://pictures.s3.yandex.net/resources/avatar_1604080799.jpg",
+    default: 'https://pictures.s3.yandex.net/resources/avatar_1604080799.jpg',
     validate: {
       validator(v) {
         // eslint-disable-next-line
         return /(^https:\/\/|http:\/\/)(?:www\.)?([a-z]|[A-Z]|[0-9]|[-._~:/?%#\[\]@!$&'()*+,;=])(?:#)?/g.test(
-          v
+          v,
         );
       },
-      message: "URL is not a valid !",
+      message: 'URL is not a valid !',
     },
   },
 });
 
 // create the model and export it
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model('user', userSchema);

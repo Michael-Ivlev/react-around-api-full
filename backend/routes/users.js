@@ -1,27 +1,82 @@
-const userRouter = require("express").Router();
+const userRouter = require('express').Router();
+const { celebrate, Joi, Segments } = require('celebrate');
+const validator = require('validator');
 const {
   getUsers,
-  getUsersById,
   updateUserInfo,
   updateUserAvatar,
   createUser,
   login,
   currentUser,
-} = require("../controllers/users");
-const auth = require("../middlewares/auth");
+} = require('../controllers/users');
+const auth = require('../middlewares/auth');
 
-userRouter.get("/users", auth, getUsers);
+// custom Url celebrate validator
+const validateURL = (value, helpers) => {
+  if (validator.isURL(value)) {
+    return value;
+  }
+  return helpers.error('string.uri');
+};
 
-// userRouter.get("/users/:id", getUsersById);
+userRouter.get('/users', auth, getUsers);
 
-userRouter.patch("/users/me", auth, updateUserInfo);
+userRouter.patch(
+  '/users/me',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      name: Joi.string().alphanum().min(3).max(30)
+        .required(),
+      about: Joi.string().alphanum().min(3).max(30)
+        .required(),
+    }),
+  }),
+  auth,
+  updateUserInfo,
+);
 
-userRouter.patch("/users/me/avatar", auth, updateUserAvatar);
+userRouter.patch(
+  '/users/me/avatar',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      avatar: Joi.string().required().custom(validateURL),
+    }),
+  }),
+  auth,
+  updateUserAvatar,
+);
 
-userRouter.post("/signin", login);
+userRouter.post(
+  '/signin',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  login,
+);
 
-userRouter.post("/signup", createUser);
+userRouter.post(
+  '/signup',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  createUser,
+);
 
-userRouter.get("/users/me", auth, currentUser);
+userRouter.get(
+  '/users/me',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      _id: Joi.string().alphanum().required(),
+    }),
+  }),
+  auth,
+  currentUser,
+);
 
 module.exports = userRouter;

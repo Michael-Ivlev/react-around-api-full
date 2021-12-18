@@ -17,15 +17,15 @@ export function AddPlacePopup(props) {
     // Prevent the browser from navigating to the form address
     e.preventDefault();
     props.onNewCard({
-      link,
       name,
+      link,
     });
   }
 
   React.useEffect(() => {
-    setName('');
-    setLink('');
-}, [props.isOpen]);
+    setName("");
+    setLink("");
+  }, [props.isOpen]);
 
   return (
     <PopupWithForm
