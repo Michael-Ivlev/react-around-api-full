@@ -1,4 +1,4 @@
-export const BASE_URL = "http://api.michaelsapi.students.nomoreparties.site";
+export const BASE_URL = "https://api.michaelsapi.students.nomoreparties.site";
 
 const _getResponseData = (res) => {
   if (!res.ok) {
