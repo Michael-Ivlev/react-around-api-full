@@ -110,7 +110,7 @@ class Api extends React.Component {
 }
 
 const api = new Api({
-  baseUrl: "http://localhost:3000",
+  baseUrl: "http://api.michaelsapi.students.nomoreparties.site",
 });
 
 // const api = new Api({
