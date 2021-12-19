@@ -25,10 +25,8 @@ userRouter.patch(
   '/users/me',
   celebrate({
     [Segments.BODY]: Joi.object().keys({
-      name: Joi.string().alphanum().min(3).max(30)
-        .required(),
-      about: Joi.string().alphanum().min(3).max(30)
-        .required(),
+      name: Joi.string().min(3).max(30).required(),
+      about: Joi.string().min(3).max(30).required(),
     }),
   }),
   auth,
