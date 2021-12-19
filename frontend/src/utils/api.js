@@ -34,16 +34,15 @@ class Api extends React.Component {
 
   changeLikeCardStatus(cardId, boolean, token) {
     if (boolean) {
-      return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
+      return fetch(`${this.baseUrl}/cards/likes/${cardId}`, {
         method: "PUT",
         headers: {
           authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }).then((res) => this._getResponseData(res));
-    }
-    if (!boolean) {
-      return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
+    } else {
+      return fetch(`${this.baseUrl}/cards/likes/${cardId}`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${token}`,

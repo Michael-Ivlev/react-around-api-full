@@ -24,7 +24,6 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [currenEmail, setcurrenEmail] = useState("");
   const history = useHistory();
-  // const [token, setToken] = useState(localStorage.getItem("jwt"));
   const token = localStorage.getItem("jwt");
 
   React.useEffect(() => {
@@ -44,15 +43,17 @@ function App() {
   }, [token, history]);
 
   React.useEffect(() => {
-    api
-      .getAllInfo(token)
-      .then(([userInfo, cardArray]) => {
-        setCurrentUser(userInfo);
-        setCards(cardArray);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    if (token) {
+      api
+        .getAllInfo(token)
+        .then(([userInfo, cardArray]) => {
+          setCurrentUser(userInfo);
+          setCards(cardArray.reverse());
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }, [token]);
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
