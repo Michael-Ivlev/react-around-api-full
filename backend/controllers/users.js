@@ -1,10 +1,11 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const NotFoundError = require("../errors/not_found");
-const InvalidData = require("../errors/invalid_data");
-const AuthError = require("../errors/auth_error");
-const EmailAlreadyExists = require("../errors/email_already_exists");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const NotFoundError = require('../errors/not_found');
+const InvalidData = require('../errors/invalid_data');
+const AuthError = require('../errors/auth_error');
+const EmailAlreadyExists = require('../errors/email_already_exists');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.getUsers = (req, res, next) => {
@@ -14,7 +15,7 @@ module.exports.getUsers = (req, res, next) => {
       res.send(users);
     })
     .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === 'DocumentNotFoundError') {
         throw new AuthError(`no users in database or no such document${err}`);
       } else {
         next(err);
@@ -28,11 +29,11 @@ module.exports.getUsersById = (req, res, next) => {
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
-        throw new NotFoundError("No user found with that id");
+      if (err.name === 'CastError') {
+        throw new NotFoundError('No user found with that id');
       }
-      if (err.name === "DocumentNotFoundError") {
-        throw new NotFoundError("There is no user with the requested ID");
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError('There is no user with the requested ID');
       } else {
         next(err);
       }
@@ -41,7 +42,9 @@ module.exports.getUsersById = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   bcrypt
     .hash(password, 10)
     .then((hash) => {
@@ -52,16 +55,14 @@ module.exports.createUser = (req, res, next) => {
         about,
         avatar,
       })
-        .then((user) =>
-          res.status(201).send({ _id: user._id, email: user.email })
-        )
+        .then((user) => res.status(201).send({ _id: user._id, email: user.email }))
         .catch((err) => {
-          if (err.message.includes("E11000 duplicate key error collection")) {
-            throw new EmailAlreadyExists("User with this Email already exist");
+          if (err.message.includes('E11000 duplicate key error collection')) {
+            throw new EmailAlreadyExists('User with this Email already exist');
           }
-          if (err.name === "ValidationError" || err.name === "SyntaxError") {
+          if (err.name === 'ValidationError' || err.name === 'SyntaxError') {
             throw new InvalidData(
-              "invalid data passed to the methods. check your url and that you pass name and about"
+              'invalid data passed to the methods. check your url and that you pass name and about',
             );
           } else {
             next(err);
@@ -83,17 +84,17 @@ module.exports.updateUserInfo = (req, res, next) => {
     {
       new: true, // the then handler receives the updated entry as input
       runValidators: true, // the data will be validated before the update
-    }
+    },
   )
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        throw new InvalidData("invalid data passed to the methods");
+      if (err.name === 'ValidationError') {
+        throw new InvalidData('invalid data passed to the methods');
       }
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(
-          `no users in database or no such document ${err.name}`
+          `no users in database or no such document ${err.name}`,
         );
       } else {
         next(err);
@@ -105,7 +106,7 @@ module.exports.updateUserInfo = (req, res, next) => {
 module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   if (!avatar) {
-    throw new InvalidData("invalid data passed to the method no avatar");
+    throw new InvalidData('invalid data passed to the method no avatar');
   }
   return User.findByIdAndUpdate(
     req.user._id,
@@ -115,14 +116,14 @@ module.exports.updateUserAvatar = (req, res, next) => {
     {
       new: true, // the then handler receives the updated entry as input
       runValidators: true, // the data will be validated before the update
-    }
+    },
   )
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(
-          `no users in database or no such document ${err.name}`
+          `no users in database or no such document ${err.name}`,
         );
       } else {
         next(err);
@@ -134,21 +135,21 @@ module.exports.updateUserAvatar = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
-    .select("+password")
+    .select('+password')
     .then((user) => {
       if (!user) {
-        throw new AuthError("Incorrect password or email");
+        throw new AuthError('Incorrect password or email');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          throw new AuthError("Incorrect password or email");
+          throw new AuthError('Incorrect password or email');
         }
         const token = jwt.sign(
           { _id: user._id },
-          NODE_ENV === "production" ? JWT_SECRET : "dev-secret",
+          NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
           {
-            expiresIn: "7 days",
-          }
+            expiresIn: '7 days',
+          },
         );
         res.send({ token });
       });
@@ -161,11 +162,11 @@ module.exports.currentUser = (req, res, next) => {
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
-        throw new InvalidData("No user found with that id");
+      if (err.name === 'CastError') {
+        throw new InvalidData('No user found with that id');
       }
-      if (err.name === "DocumentNotFoundError") {
-        throw new NotFoundError("There is no user with the requested ID");
+      if (err.name === 'DocumentNotFoundError') {
+        throw new NotFoundError('There is no user with the requested ID');
       } else {
         next(err);
       }

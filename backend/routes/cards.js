@@ -1,28 +1,28 @@
-const cardsRouter = require("express").Router();
-const { celebrate, Joi, Segments } = require("celebrate");
-const validator = require("validator");
+const cardsRouter = require('express').Router();
+const { celebrate, Joi, Segments } = require('celebrate');
+const validator = require('validator');
 const {
   getCards,
   removeCardById,
   addCard,
   likeCard,
   dislikeCard,
-} = require("../controllers/cards");
-const auth = require("../middlewares/auth");
-const { permissionCard } = require("../middlewares/permissions");
+} = require('../controllers/cards');
+const auth = require('../middlewares/auth');
+const { permissionCard } = require('../middlewares/permissions');
 
 // custom Url celebrate validator
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
   }
-  return helpers.error("string.uri");
+  return helpers.error('string.uri');
 };
 
-cardsRouter.get("/cards", auth, getCards);
+cardsRouter.get('/cards', auth, getCards);
 
 cardsRouter.delete(
-  "/cards/:cardId",
+  '/cards/:cardId',
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       cardId: Joi.string().alphanum().required(),
@@ -30,11 +30,11 @@ cardsRouter.delete(
   }),
   auth,
   permissionCard,
-  removeCardById
+  removeCardById,
 );
 
 cardsRouter.post(
-  "/cards",
+  '/cards',
   celebrate({
     [Segments.BODY]: Joi.object().keys({
       name: Joi.string().min(3).max(30).required(),
@@ -42,29 +42,29 @@ cardsRouter.post(
     }),
   }),
   auth,
-  addCard
+  addCard,
 );
 
 cardsRouter.put(
-  "/cards/:cardId/likes",
+  '/cards/:cardId/likes',
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       cardId: Joi.string().alphanum().required(),
     }),
   }),
   auth,
-  likeCard
+  likeCard,
 );
 
 cardsRouter.delete(
-  "/cards/:cardId/likes",
+  '/cards/:cardId/likes',
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       cardId: Joi.string().alphanum().required(),
     }),
   }),
   auth,
-  dislikeCard
+  dislikeCard,
 );
 
 module.exports = cardsRouter;

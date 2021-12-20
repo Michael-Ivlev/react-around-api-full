@@ -1,5 +1,5 @@
-// export const BASE_URL = "https://api.michaelsapi.students.nomoreparties.site";
-export const BASE_URL = "http://localhost:3000";
+export const BASE_URL = "https://api.michaelsapi.students.nomoreparties.site";
+// export const BASE_URL = "http://localhost:3000";
 
 const _getResponseData = (res) => {
   if (!res.ok) {
