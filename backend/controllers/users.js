@@ -16,6 +16,8 @@ module.exports.getUsers = (req, res, next) => {
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         throw new AuthError(`no users in database or no such document${err}`);
+      } else {
+        next(err);
       }
     })
     .catch(next);
@@ -31,6 +33,8 @@ module.exports.getUsersById = (req, res, next) => {
       }
       if (err.name === "DocumentNotFoundError") {
         throw new NotFoundError("There is no user with the requested ID");
+      } else {
+        next(err);
       }
     })
     .catch(next);
@@ -48,7 +52,9 @@ module.exports.createUser = (req, res, next) => {
         about,
         avatar,
       })
-        .then((user) => res.send(user))
+        .then((user) =>
+          res.status(201).send({ _id: user._id, email: user.email })
+        )
         .catch((err) => {
           if (err.message.includes("E11000 duplicate key error collection")) {
             throw new EmailAlreadyExists("User with this Email already exist");
@@ -57,6 +63,8 @@ module.exports.createUser = (req, res, next) => {
             throw new InvalidData(
               "invalid data passed to the methods. check your url and that you pass name and about"
             );
+          } else {
+            next(err);
           }
         })
         .catch(next);
@@ -87,6 +95,8 @@ module.exports.updateUserInfo = (req, res, next) => {
         throw new NotFoundError(
           `no users in database or no such document ${err.name}`
         );
+      } else {
+        next(err);
       }
     })
     .catch(next);
@@ -114,6 +124,8 @@ module.exports.updateUserAvatar = (req, res, next) => {
         throw new NotFoundError(
           `no users in database or no such document ${err.name}`
         );
+      } else {
+        next(err);
       }
     })
     .catch(next);
@@ -154,6 +166,8 @@ module.exports.currentUser = (req, res, next) => {
       }
       if (err.name === "DocumentNotFoundError") {
         throw new NotFoundError("There is no user with the requested ID");
+      } else {
+        next(err);
       }
     })
     .catch(next);

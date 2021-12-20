@@ -8,6 +8,7 @@ const userRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 require("dotenv").config();
+const limiter = require("./limiter/limiter");
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -15,6 +16,7 @@ const app = express();
 app.use(cors());
 app.options("*", cors());
 
+app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -41,6 +43,7 @@ app.use(errors());
 
 // central error middleware
 app.use((err, req, res, next) => {
+  console.log(err);
   // if an error has no status, display 500
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({

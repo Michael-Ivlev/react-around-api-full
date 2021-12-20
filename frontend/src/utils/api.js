@@ -34,7 +34,7 @@ class Api extends React.Component {
 
   changeLikeCardStatus(cardId, boolean, token) {
     if (boolean) {
-      return fetch(`${this.baseUrl}/cards/likes/${cardId}`, {
+      return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
         method: "PUT",
         headers: {
           authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ class Api extends React.Component {
         },
       }).then((res) => this._getResponseData(res));
     } else {
-      return fetch(`${this.baseUrl}/cards/likes/${cardId}`, {
+      return fetch(`${this.baseUrl}/cards/${cardId}/likes`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${token}`,
@@ -109,8 +109,12 @@ class Api extends React.Component {
   }
 }
 
+// const api = new Api({
+//   baseUrl: "https://api.michaelsapi.students.nomoreparties.site",
+// });
+
 const api = new Api({
-  baseUrl: "https://api.michaelsapi.students.nomoreparties.site",
+  baseUrl: "http://localhost:3000",
 });
 
 // const api = new Api({
