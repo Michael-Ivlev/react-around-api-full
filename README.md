@@ -5,7 +5,7 @@ The API of "Around the U.S." with authorization and registration handled by the 
 This repository contains the full API of "Around the U.S." project that features user authorization and user registration and handles cards and users.
 
 
-### technologies and techniques used.
+### Technologies and techniques used.
 
 * React
 * NodeJs
